@@ -104,6 +104,12 @@ export default function DataEntry() {
           dieselSale = dieselSale + eEnding[index] - eBeginning[index]
         }
       })
+      let petrolBookStock = petrolStartActualStock-petrolSale+tankerReading1
+      let dieselBookStock = dieselStartActualStock-dieselSale+tankerReading2
+      let petrolEndActualStock = dipReading1
+      let dieselEndActualStock = dipReading2+dipReading3
+      let petrolVarience = petrolBookStock - petrolEndActualStock
+      let dieselVarience = dieselBookStock - dieselEndActualStock
       console.log("start actual stocks:", petrolStartActualStock, dieselStartActualStock)
       const tSale = {
         date,
@@ -113,10 +119,12 @@ export default function DataEntry() {
         dieselSale,
         "petrolTanker":tankerReading1,
         "dieselTanker":tankerReading2,
-        "petrolBookStock":petrolStartActualStock-petrolSale+tankerReading1,
-        "dieselBookStock":dieselStartActualStock-dieselSale+tankerReading2,
-        "petrolEndActualStock":dipReading1,
-        "dieselEndActualStock":dipReading2+dipReading3
+        petrolBookStock,
+        dieselBookStock,
+        petrolEndActualStock,
+        dieselEndActualStock,
+        petrolVarience,
+        dieselVarience
       }
       return tSale;
     }
@@ -132,6 +140,8 @@ export default function DataEntry() {
       .then((tresponse) => tresponse.json())
       .then((data) => {
         console.log("successfully entered data:", data);
+        setEnteredPetrolStart();
+        setEnteredDieselStart();
       })
       .catch((error) => {
         console.log("Error while sending: ", error)
@@ -195,23 +205,23 @@ export default function DataEntry() {
     }
 
   return (
-    <div>
+    <div className="container mt-4">
       <h4>Date</h4>
       <input id="startDate" className="form-control" type="date" onChange={updateDate}/>
       <br></br>
-      <h4>Emploee Reading</h4>
+      <h4 className="mt-4">Emploee Reading</h4>
       {eBeginning.map((data, index) => (<EmployeeReadingsEntry key={index} itemNum={index} updateBeginning={(value) => handleBeginningAt(index, value)} updateEnding={(value) => handleEndingAt(index, value)} updateSaleType={(value) => handleESaleTypeAt(index, value)} updateEName={(value) => handleEIDAt(index, value)}/>))}
-      <h4>Dip Reading</h4>
+      <h4 className="mt-5">Dip Reading</h4>
       <DipEntry updateDipReading1={(value) => handleDipEntry1(value)} updateDipReading2={(value) => handleDipEntry2(value)} updateDipReading3={(value) => handleDipEntry3(value)}/>
-      <h4>Tanker Reading</h4>
+      <h4 className="mt-5">Tanker Reading</h4>
       <Tanker updateTankerReading1={(value) => handleTankerEntry1(value)} updateTankerReading2={(value) => handleTankerEntry2(value)}/>
       
       
-      {askUserStart && <div> <h4>Starting Actual Stock</h4> <div className="input-group mb-3"> <input id="startPetrolStock" className="form-control" type="number" placeholder="Petrol" onChange={(event)=>{setEnteredPetrolStart(event.target.value)}}/> <span className="input-group-text">litre</span>
+      {askUserStart && <div> <h4 className="mt-4">Starting Actual Stock</h4> <div className="input-group mb-3"> <input id="startPetrolStock" className="form-control" type="number" placeholder="Petrol" onChange={(event)=>{setEnteredPetrolStart(event.target.value)}}/> <span className="input-group-text">litre</span>
       <input id="startDieselStock" className="form-control" type="number" placeholder="Diesel" onChange={(event)=>{setEnteredDieselStart(event.target.value)}}/> <span className="input-group-text">litre</span></div> </div>
       }
 
-      <button onClick={handleEntry}>Enter</button>
+      <button className="btn btn-success mt-4 mb-4" onClick={handleEntry}>Enter</button>
       
     </div>
   )

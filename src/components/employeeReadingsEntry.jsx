@@ -18,7 +18,7 @@ const EmployeeReadingsEntry = (props) => {
   }
 
   return (
-    <div>
+    <div className="container mb-3">
         <select className="form-select mb-1" aria-label="Default select example" onChange={handleNameChange}>
         <option defaultValue={""}>Choose Employee</option>
         <option value="0">Ali</option>

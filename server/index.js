@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors');
 var dataEntryController = require('./Controllers/dataEntry.js')
+var getterController = require('./Controllers/getters.js')
 const app = express();
 
 
@@ -17,3 +18,4 @@ console.log('Server running on http://localhost:5500');
 });
 
 app.use('/entry', dataEntryController)
+app.use('/getter', getterController)

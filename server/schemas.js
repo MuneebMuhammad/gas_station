@@ -26,6 +26,8 @@ const totalSalesSchma = new mongoose.Schema({
     dieselBookStock: Number,
     petrolEndActualStock: Number,
     dieselEndActualStock: Number,
+    petrolVarience: Number,
+    dieselVarience: Number
   });
   
   
