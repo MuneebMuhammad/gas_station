@@ -25,12 +25,42 @@ export default function DataEntry() {
 
 
     const updateDate = async(event) => {
+      // reset previous values on date change
+      setEnteredPetrolStart();
+      setEnteredDieselStart();
+      setAskuserStart(false)
+      setEBeginning(["",""])
+      setEEnding(["",""])
+      setESaleType(["",""])
+      setEID(["",""])
+      setDipReading1(0)
+      setDipReading2(0)
+      setDipReading3(0)
+      setTankerReading1(0)
+      setTankerReading2(0)
       setDate(event.target.value)
+
+      // load data if this date exists in the table
       const response = await fetch(`http://localhost:5500/getter/totalSaleAt/${event.target.value}`)
       const viewData = await response.json();
       console.log("view Data:", viewData)
       if (viewData.message == "exists"){
-        setDipReading1(viewData.response.petrolEndActualStock)
+        setAskuserStart(true)
+        setDipReading1(viewData.response.dipReading1)
+        setDipReading2(viewData.response.dipReading2)
+        setDipReading3(viewData.response.dipReading3)
+        setTankerReading1(viewData.response.petrolTanker)
+        setTankerReading2(viewData.response.dieselTanker)
+        setEnteredPetrolStart(viewData.response.petrolStartActualStock)
+        setEnteredDieselStart(viewData.response.dieselStartActualStock)
+
+        const response = await fetch(`http://localhost:5500/getter/employeeSaleAt/${event.target.value}`)
+        const employeeViewData = await response.json();
+        console.log(employeeViewData)
+        setEBeginning(employeeViewData.response.eSale.map((item)=> (item.beginningEntry)))
+        setEEnding(employeeViewData.response.eSale.map((item)=> (item.endingEntry)))
+        setESaleType(employeeViewData.response.eSale.map((item)=> (item.saleType)))
+        setEID(employeeViewData.response.eSale.map((item)=> (item.employeeId)))
       }
     }    
 
@@ -130,6 +160,9 @@ export default function DataEntry() {
         "dieselTanker":tankerReading2,
         petrolBookStock,
         dieselBookStock,
+        dipReading1,
+        dipReading2,
+        dipReading3,
         petrolEndActualStock,
         dieselEndActualStock,
         petrolVarience,
@@ -149,8 +182,7 @@ export default function DataEntry() {
       .then((tresponse) => tresponse.json())
       .then((data) => {
         console.log("successfully entered data:", data);
-        setEnteredPetrolStart();
-        setEnteredDieselStart();
+        
       })
       .catch((error) => {
         console.log("Error while sending: ", error)
@@ -203,7 +235,7 @@ export default function DataEntry() {
         console.log("actual stock entered by user")
         await writeTotalSales(enteredPetrolStart, enteredDieselStart);
         await writeEmployeeSales();
-        setAskuserStart(false)
+        
         
       }
     }
@@ -220,16 +252,16 @@ export default function DataEntry() {
       <br></br>
       
       <h4 className="mt-4">Dispenser Reading</h4>
-      {eBeginning.map((data, index) => (<EmployeeReadingsEntry key={index} itemNum={index} updateBeginning={(value) => handleBeginningAt(index, value)} updateEnding={(value) => handleEndingAt(index, value)} updateSaleType={(value) => handleESaleTypeAt(index, value)} updateEName={(value) => handleEIDAt(index, value)}/>))}
+      {eBeginning.map((data, index) => (<EmployeeReadingsEntry beginningValue={eBeginning[index]} endingValue={eEnding[index]} saleTypeValue={eSaleType[index]} eIDvalue={eID[index]} key={index} itemNum={index} updateBeginning={(value) => handleBeginningAt(index, value)} updateEnding={(value) => handleEndingAt(index, value)} updateSaleType={(value) => handleESaleTypeAt(index, value)} updateEName={(value) => handleEIDAt(index, value)}/>))}
       
       <h4 className="mt-5">Dip Reading</h4>
-      <DipEntry updateDipReading1={(value) => handleDipEntry1(value)} updateDipReading2={(value) => handleDipEntry2(value)} updateDipReading3={(value) => handleDipEntry3(value)} dipValue1={dipReading1}/>
+      <DipEntry updateDipReading1={(value) => handleDipEntry1(value)} updateDipReading2={(value) => handleDipEntry2(value)} updateDipReading3={(value) => handleDipEntry3(value)} dipValue1={dipReading1} dipValue2={dipReading2} dipValue3={dipReading3}/>
       
       <h4 className="mt-5">Delivery</h4>
-      <Tanker updateTankerReading1={(value) => handleTankerEntry1(value)} updateTankerReading2={(value) => handleTankerEntry2(value)}/>
+      <Tanker updateTankerReading1={(value) => handleTankerEntry1(value)} updateTankerReading2={(value) => handleTankerEntry2(value)} tankerValue1={tankerReading1} tankerValue2={tankerReading2}/>
       
-      {askUserStart && <div> <h4 className="mt-4">Starting Actual Stock</h4> <div className="input-group mb-3"> <input id="startPetrolStock" className="form-control" type="number" placeholder="Petrol" onChange={(event)=>{setEnteredPetrolStart(event.target.value)}}/> <span className="input-group-text">litre</span>
-      <input id="startDieselStock" className="form-control" type="number" placeholder="Diesel" onChange={(event)=>{setEnteredDieselStart(event.target.value)}}/> <span className="input-group-text">litre</span></div> </div>
+      {askUserStart && <div> <h4 className="mt-4">Starting Actual Stock</h4> <div className="input-group mb-3"> <input id="startPetrolStock" className="form-control" type="number" placeholder="Petrol" value={enteredPetrolStart} onChange={(event)=>{setEnteredPetrolStart(event.target.value)}}/> <span className="input-group-text">litre</span>
+      <input id="startDieselStock" className="form-control" type="number" placeholder="Diesel" value={enteredDieselStart} onChange={(event)=>{setEnteredDieselStart(event.target.value)}}/> <span className="input-group-text">litre</span></div> </div>
       }
 
       <Button className='mb-5 mt-3' color="success" variant="contained" endIcon={<SendIcon />} onClick={handleEntry} >

@@ -15,15 +15,15 @@ function DipEntry(props) {
   return (
     <div>
         <div className="input-group mb-3">
-        <input type="number" className="form-control" placeholder="Container 1 (Petrol)" onChange={handleDipChange1} />
-        <span className="input-group-text">litre (petrol)</span>
-        </div>
-        <div className="input-group mb-3">
-        <input type="number" className="form-control" placeholder="Container 2 (Diesel)" onChange={handleDipChange2}/>
+        <input type="number" className="form-control" placeholder="Container 1 (Petrol)" value={props.dipValue1 != 0 ? props.dipValue1 : ""} onChange={handleDipChange1} />
         <span className="input-group-text">litre</span>
         </div>
         <div className="input-group mb-3">
-        <input type="number" className="form-control" placeholder="Container 3 (Diesel)" onChange={handleDipChange3}/>
+        <input type="number" className="form-control" placeholder="Container 2 (Diesel)" value={props.dipValue2 != 0 ? props.dipValue2 : ""} onChange={handleDipChange2}/>
+        <span className="input-group-text">litre</span>
+        </div>
+        <div className="input-group mb-3">
+        <input type="number" className="form-control" placeholder="Container 3 (Diesel)" value={props.dipValue3 != 0 ? props.dipValue3 : ""} onChange={handleDipChange3}/>
         <span className="input-group-text">litre</span>
         </div>
     </div>

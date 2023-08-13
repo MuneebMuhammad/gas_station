@@ -9,9 +9,14 @@ router.get('/greetings', (req, res)=>{
 })
 
 router.post('/employee', async(req, res)=>{
-    const newSale = new eSaleModel(req.body);
+    // const newSale = new eSaleModel(req.body);
 
-    newSale.save()
+    // newSale.save()
+    eSaleModel.findOneAndUpdate(
+      {date:req.body.date},
+      req.body,
+      {new: true, upsert: true}
+    )
     .then(() => {
         res.status(200).json({ message: 'Sale successfully added' });
       })
@@ -22,9 +27,14 @@ router.post('/employee', async(req, res)=>{
 })
 
 router.post('/total', async(req, res) => {
-    const newTSale = new tSalesModel(req.body);
+    // const newTSale = new tSalesModel(req.body);
 
-    newTSale.save()
+    // newTSale.save()
+    tSalesModel.findOneAndUpdate(
+      {date: req.body.date},
+      req.body,
+      {new: true, upsert: true}
+    )
     .then(() => {
         res.status(200).json({ message: 'Total data successfully added' });
       })

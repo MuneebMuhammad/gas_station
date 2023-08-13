@@ -11,11 +11,11 @@ function Tanker(props) {
   return (
     <div>
         <div className="input-group mb-3">
-        <input type="number" className="form-control" placeholder="Tanker 1 (Petrol)" onChange={handleTankerChange1}/>
+        <input type="number" className="form-control" placeholder="Tanker 1 (Petrol)" value={props.tankerValue1 != 0 ? props.tankerValue1 : ""} onChange={handleTankerChange1}/>
         <span className="input-group-text">litre</span>
         </div>
         <div className="input-group mb-3">
-        <input type="number" className="form-control" placeholder="Tanker 2 (Diesel)" onChange={handleTankerChange2}/>
+        <input type="number" className="form-control" placeholder="Tanker 2 (Diesel)" value={props.tankerValue2 != 0 ? props.tankerValue2 : ""} onChange={handleTankerChange2}/>
         <span className="input-group-text">litre</span>
         </div>
     </div>
