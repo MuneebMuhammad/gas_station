@@ -1,4 +1,6 @@
 import React from 'react'
+import Divider from '@mui/material/Divider';
+
 const EmployeeReadingsEntry = (props) => {
   
   const handleBeginning = (event) => {
@@ -42,7 +44,7 @@ const EmployeeReadingsEntry = (props) => {
             <input className="form-check-input" type="radio" name={"inlineRadioOptions"+props.itemNum}   value="1" onChange={handleSaleTypeChange}/>
             <label className="form-check-label" htmlFor="inlineRadio2">Diesel</label>
             </div>
-            
+            <Divider dark/>
   </div>
 
   )

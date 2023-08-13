@@ -15,7 +15,21 @@ router.get('/allTotalSales', async (req, res)=>{
     })
 })
 
-
+router.get('/totalSaleAt/:date', async(req, res)=>{
+    await tSalesModel.findOne({date:req.params.date})
+    .then((response)=>{
+        if (response){
+            res.json({message: "exists", response})
+        }
+        else{
+            res.json({message:"not exists"})
+        }
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.status(400).json({ error: 'There was an error reading current date', details: err });
+    })
+})
 
 
 

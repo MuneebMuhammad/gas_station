@@ -2,6 +2,9 @@ import React, {useEffect, useState} from 'react'
 import EmployeeReadingsEntry from './employeeReadingsEntry'
 import DipEntry from './dipEntry'
 import Tanker from './tanker'
+import Button from '@mui/material/Button'
+import SendIcon from '@mui/icons-material/Send';
+
 import { data } from 'jquery'
 
 
@@ -21,8 +24,14 @@ export default function DataEntry() {
     const [enteredDieselStart, setEnteredDieselStart] = useState()
 
 
-    const updateDate = (event) => {
+    const updateDate = async(event) => {
       setDate(event.target.value)
+      const response = await fetch(`http://localhost:5500/getter/totalSaleAt/${event.target.value}`)
+      const viewData = await response.json();
+      console.log("view Data:", viewData)
+      if (viewData.message == "exists"){
+        setDipReading1(viewData.response.petrolEndActualStock)
+      }
     }    
 
     const handleBeginningAt = (index, newValue) => {
@@ -205,24 +214,27 @@ export default function DataEntry() {
     }
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" style={{maxWidth:"550px"}}>
       <h4>Date</h4>
       <input id="startDate" className="form-control" type="date" onChange={updateDate}/>
       <br></br>
-      <h4 className="mt-4">Emploee Reading</h4>
-      {eBeginning.map((data, index) => (<EmployeeReadingsEntry key={index} itemNum={index} updateBeginning={(value) => handleBeginningAt(index, value)} updateEnding={(value) => handleEndingAt(index, value)} updateSaleType={(value) => handleESaleTypeAt(index, value)} updateEName={(value) => handleEIDAt(index, value)}/>))}
-      <h4 className="mt-5">Dip Reading</h4>
-      <DipEntry updateDipReading1={(value) => handleDipEntry1(value)} updateDipReading2={(value) => handleDipEntry2(value)} updateDipReading3={(value) => handleDipEntry3(value)}/>
-      <h4 className="mt-5">Tanker Reading</h4>
-      <Tanker updateTankerReading1={(value) => handleTankerEntry1(value)} updateTankerReading2={(value) => handleTankerEntry2(value)}/>
       
+      <h4 className="mt-4">Dispenser Reading</h4>
+      {eBeginning.map((data, index) => (<EmployeeReadingsEntry key={index} itemNum={index} updateBeginning={(value) => handleBeginningAt(index, value)} updateEnding={(value) => handleEndingAt(index, value)} updateSaleType={(value) => handleESaleTypeAt(index, value)} updateEName={(value) => handleEIDAt(index, value)}/>))}
+      
+      <h4 className="mt-5">Dip Reading</h4>
+      <DipEntry updateDipReading1={(value) => handleDipEntry1(value)} updateDipReading2={(value) => handleDipEntry2(value)} updateDipReading3={(value) => handleDipEntry3(value)} dipValue1={dipReading1}/>
+      
+      <h4 className="mt-5">Delivery</h4>
+      <Tanker updateTankerReading1={(value) => handleTankerEntry1(value)} updateTankerReading2={(value) => handleTankerEntry2(value)}/>
       
       {askUserStart && <div> <h4 className="mt-4">Starting Actual Stock</h4> <div className="input-group mb-3"> <input id="startPetrolStock" className="form-control" type="number" placeholder="Petrol" onChange={(event)=>{setEnteredPetrolStart(event.target.value)}}/> <span className="input-group-text">litre</span>
       <input id="startDieselStock" className="form-control" type="number" placeholder="Diesel" onChange={(event)=>{setEnteredDieselStart(event.target.value)}}/> <span className="input-group-text">litre</span></div> </div>
       }
 
-      <button className="btn btn-success mt-4 mb-4" onClick={handleEntry}>Enter</button>
-      
+      <Button className='mb-5 mt-3' color="success" variant="contained" endIcon={<SendIcon />} onClick={handleEntry} >
+        Enter
+      </Button>
     </div>
   )
 }

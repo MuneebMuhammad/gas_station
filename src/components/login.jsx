@@ -1,28 +1,78 @@
-import React from 'react'
+import * as React from 'react';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-function Login() {
-    const handleLogin = (e) => {
-        e.preventDefault();
-        // Here you would normally check the credentials against a database
-        const username = e.target.username.value;
-        const password = e.target.password.value;
-    
-        if (username === 'admin' && password === 'admin') {
-            window.location.replace('http://localhost:3000/admin');
-        } else if (username === 'user' && password === 'user'){
-            window.location.replace('http://localhost:3000/user');
-        }
-    }
+
+const defaultTheme = createTheme();
+
+export default function Login() {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    let email =  data.get('email');
+    let password = data.get('password')
+
+    if (email == 'user' && password=='user') window.location.replace('http://localhost:3000/user');
+    else if (email === 'admin' && password === 'admin') window.location.replace('http://localhost:3000/admin')
+  };
 
   return (
-    <div className="container mt-5">
-        <form onSubmit={handleLogin}>
-            <input type="text" name="username" placeholder="Username" required />
-            <input type="password" name="password" placeholder="Password" required />
-            <button type="submit">Login</button>
-        </form>
-    </div>
-  )
+    <ThemeProvider theme={defaultTheme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar src="pso_logo.png" sx={{ width: 80, height: 80 }}>
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign In
+            </Button>
+            
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
+  );
 }
-
-export default Login
