@@ -15,6 +15,16 @@ router.get('/allTotalSales', async (req, res)=>{
     })
 })
 
+router.get('/allEmployeeSales', async(req, res)=>{
+    await eSaleModel.find({})
+    .then((response)=>{
+        res.json(response);
+    })
+    .catch((err)=>{
+        console.log("error getting all sales:", err);
+    })
+})
+
 router.get('/totalSaleAt/:date', async(req, res)=>{
     await tSalesModel.findOne({date:req.params.date})
     .then((response)=>{

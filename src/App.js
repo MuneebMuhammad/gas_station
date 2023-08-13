@@ -6,7 +6,7 @@ import LineGraph from './components/lineGraph';
 import Login from './components/login';
 import Navbar from './components/navbar';
 import { BrowserRouter, Router, Switch, Route, Routes, Redirect } from 'react-router-dom';
-
+import Admin from './components/admin';
 
 function App() {
   
@@ -15,7 +15,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/user" element={<DataEntry />} />
-        <Route path="/admin" element={<LineGraph />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );
