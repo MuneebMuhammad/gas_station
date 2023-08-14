@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 
 const eSaleSchema = new mongoose.Schema({
-    employeeId: Number,
+    employeeId: String,
     beginningEntry: Number,
     endingEntry: Number,
     sales: Number,
@@ -20,8 +20,15 @@ const totalSalesSchma = new mongoose.Schema({
     dieselStartActualStock: Number,
     petrolSale: Number,
     dieselSale: Number,
-    petrolTanker: Number,
-    dieselTanker: Number,
+    petrolDelivery: Number,
+    dieselDelivery: Number,
+    deliveries: [
+        {
+          tankerID: String,
+          petrolQuantity: Number,
+          dieselQuantity: Number
+        }
+      ],
     petrolBookStock: Number,
     dieselBookStock: Number,
     dipReading1: Number,
@@ -33,6 +40,18 @@ const totalSalesSchma = new mongoose.Schema({
     dieselVarience: Number
   });
   
+const tankerSchema = new mongoose.Schema({
+    number: String,
+    maxCapacity: Number,
+    sections: Number
+})
+
+const employeeSchema = new mongoose.Schema({
+    name: String,
+    cnic: Number,
+    age: Number,
+    reference: String
+})
   
 const testSchema = new mongoose.Schema({
     name: String
@@ -41,6 +60,8 @@ const testSchema = new mongoose.Schema({
 
 const eSaleModel = mongoose.model('employeesales', employeeSaleSchema);
 const tSalesModel = mongoose.model('totalsales', totalSalesSchma);
+const tankerModel = mongoose.model('tankers', tankerSchema)
+const employeeModel = mongoose.model('employees', employeeSchema)
 const testModel = mongoose.model('tests', testSchema)
 
-module.exports = {eSaleModel, tSalesModel,testModel}
+module.exports = {eSaleModel, tSalesModel, tankerModel, employeeModel,testModel}

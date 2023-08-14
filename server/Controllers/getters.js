@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router();
 const mongoose = require('../database')
 
-const {tSalesModel, eSaleModel} = require('../schemas')
+const {tSalesModel, eSaleModel, tankerModel, employeeModel} = require('../schemas')
 
 
 router.get('/allTotalSales', async (req, res)=>{
@@ -57,7 +57,25 @@ router.get('/employeeSaleAt/:date', async(req, res)=>{
     })
 })
 
+router.get('/tankerIDs', async(req, res)=>{
+    await tankerModel.find({})
+    .then((response)=>{
+        res.json(response)
+    })
+    .catch((err)=>{
+        res.status(400).json({error: 'error reading tanker ids', details: err})
+    })
+})
 
+router.get('/employeeNames', async(req, res)=>{
+    await employeeModel.find({})
+    .then((response)=>{
+        res.json(response)
+    })
+    .catch((err)=>{
+        res.status(400).json({error: 'error reading employee names', details: err})
+    })
+})
 
 
 module.exports = router

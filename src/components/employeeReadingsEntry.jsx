@@ -15,25 +15,16 @@ const EmployeeReadingsEntry = (props) => {
     props.updateSaleType(event.target.value)
   } 
 
-  const handleNameChange = (event) => {
-    props.updateEName(event.target.value)
-  }
 
   return (
     <div className="container mb-3">
-        <select className="form-select mb-1" aria-label="Default select example" onChange={handleNameChange} value={props.eIDvalue}>
-        <option defaultValue={""}>Choose Employee</option>
-        <option value="0">Ali</option>
-        <option value="1">Asad</option>
-        <option value="2">Asim</option>
-        </select>
-        
-        
+      
+        <h5>{props.eIDvalue}</h5>
         <div className="input-group mb-3">
         <input type="number" className="form-control" placeholder="Beginning Reading" onChange={handleBeginning} value={props.beginningValue}/>
-        <span className="input-group-text">litre</span>
+        <span className="input-group-text">(start) litre</span>
         <input type="number" className="form-control" placeholder="Ending Reading" onChange={handleEnding} value={props.endingValue}/>
-        <span className="input-group-text">litre</span>
+        <span className="input-group-text">(end) litre</span>
         </div>
 
         <div className="form-check form-check-inline">
@@ -44,7 +35,7 @@ const EmployeeReadingsEntry = (props) => {
             <input className="form-check-input" type="radio" name={"inlineRadioOptions"+props.itemNum}   value="1" onChange={handleSaleTypeChange} checked={props.saleTypeValue==1}/>
             <label className="form-check-label" htmlFor="inlineRadio2">Diesel</label>
             </div>
-            <Divider dark/>
+            <Divider />
   </div>
 
   )

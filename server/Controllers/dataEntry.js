@@ -9,9 +9,8 @@ router.get('/greetings', (req, res)=>{
 })
 
 router.post('/employee', async(req, res)=>{
-    // const newSale = new eSaleModel(req.body);
-
-    // newSale.save()
+    
+    console.log("employee sale:", req.body)
     eSaleModel.findOneAndUpdate(
       {date:req.body.date},
       req.body,
@@ -22,7 +21,7 @@ router.post('/employee', async(req, res)=>{
       })
       .catch(err => {
         console.log(err)
-        res.status(400).json({ error: 'There was an error saving the sale', details: err });
+        res.status(400).json({ error: 'There was an error saving the employee sale', details: err });
       });
 })
 

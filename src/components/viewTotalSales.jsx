@@ -40,7 +40,6 @@ const handleOptionChange = async(event)=>{
 
 useEffect(() => {
         const fetchData = async () => {
-          console.log("begin");
           const response = await fetch(`http://localhost:5500/getter/allTotalSales`);
           const totalSales = await response.json();
           let data = totalSales.map(item => ({

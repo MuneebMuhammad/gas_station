@@ -10,18 +10,18 @@ import { data } from 'jquery'
 
 export default function DataEntry() {
     const [date, setDate] = useState("")
-    const [eBeginning, setEBeginning] = useState(["",""])
-    const [eEnding, setEEnding] = useState(["",""])
-    const [eSaleType, setESaleType] = useState(["",""])
-    const [eID, setEID] = useState(["", ""])
     const [dipReading1, setDipReading1] = useState(0)
     const [dipReading2, setDipReading2] = useState(0)
     const [dipReading3, setDipReading3] = useState(0)
-    const [tankerReading1, setTankerReading1] = useState(0)
-    const [tankerReading2, setTankerReading2] = useState(0)
     const [askUserStart, setAskuserStart] = useState(false)
     const [enteredPetrolStart, setEnteredPetrolStart] = useState()
     const [enteredDieselStart, setEnteredDieselStart] = useState()
+    const [tankerIDs, setTankerIDs] = useState([]);
+    const [tankerDelivery, setTankerDelivery] = useState([])
+    const [eBeginning, setEBeginning] = useState([])
+    const [eEnding, setEEnding] = useState([])
+    const [eSaleType, setESaleType] = useState([])
+    const [eID, setEID] = useState([])
 
 
     const updateDate = async(event) => {
@@ -29,16 +29,17 @@ export default function DataEntry() {
       setEnteredPetrolStart();
       setEnteredDieselStart();
       setAskuserStart(false)
-      setEBeginning(["",""])
-      setEEnding(["",""])
-      setESaleType(["",""])
-      setEID(["",""])
       setDipReading1(0)
       setDipReading2(0)
       setDipReading3(0)
-      setTankerReading1(0)
-      setTankerReading2(0)
       setDate(event.target.value)
+      setTankerDelivery(Array(tankerIDs.length).fill([0, 0]))
+      // setEBeginning(Array(eID.length).fill([0]))
+      // setEEnding(Array(eID.length).fill([0]))
+      // setESaleType(Array(eID.length).fill([0]))
+      setEBeginning(Array(eID.length).fill(0))
+      setEEnding(Array(eID.length).fill(0))
+      setESaleType(Array(eID.length).fill(0))
 
       // load data if this date exists in the table
       const response = await fetch(`http://localhost:5500/getter/totalSaleAt/${event.target.value}`)
@@ -49,10 +50,9 @@ export default function DataEntry() {
         setDipReading1(viewData.response.dipReading1)
         setDipReading2(viewData.response.dipReading2)
         setDipReading3(viewData.response.dipReading3)
-        setTankerReading1(viewData.response.petrolTanker)
-        setTankerReading2(viewData.response.dieselTanker)
         setEnteredPetrolStart(viewData.response.petrolStartActualStock)
         setEnteredDieselStart(viewData.response.dieselStartActualStock)
+        setTankerDelivery(viewData.response.deliveries.map((item)=> ([item.petrolQuantity, item.dieselQuantity])))
 
         const response = await fetch(`http://localhost:5500/getter/employeeSaleAt/${event.target.value}`)
         const employeeViewData = await response.json();
@@ -61,8 +61,31 @@ export default function DataEntry() {
         setEEnding(employeeViewData.response.eSale.map((item)=> (item.endingEntry)))
         setESaleType(employeeViewData.response.eSale.map((item)=> (item.saleType)))
         setEID(employeeViewData.response.eSale.map((item)=> (item.employeeId)))
+        
       }
     }    
+
+    const handleTankerUpdate = (index, petrol, diesel) => {
+      const newQuantities = [...tankerDelivery];
+      newQuantities[index] = [petrol, diesel];
+      setTankerDelivery(newQuantities);
+    };
+
+
+    const handleEmployeeSaleUpdate = (index, eStart, eEnd, eSType) =>{
+      const newEStart = [...eBeginning];
+      newEStart[index] = eStart;
+      setEBeginning(newEStart);
+
+      const newEEnd = [...eEnding];
+      newEEnd[index] = eEnd[index];
+      setEEnding(newEEnd);
+
+      const newEType = [...eSType];
+      newEType[index] = eSType[index];
+      setESaleType(newEType);
+    }
+
 
     const handleBeginningAt = (index, newValue) => {
       setEBeginning(prevData => {
@@ -88,14 +111,6 @@ export default function DataEntry() {
       })
     }
 
-    const handleEIDAt = (index, newValue) => {
-      setEID(prevData => {
-        const newData = [...prevData];
-        newData[index] = parseInt(newValue);
-        return newData;
-      })
-    }
-
     const handleDipEntry1 = (value) => {
       setDipReading1(parseFloat(value))
     }
@@ -104,13 +119,6 @@ export default function DataEntry() {
     }
     const handleDipEntry3 = (value) => {
       setDipReading3(parseFloat(value))
-    }
-
-    const handleTankerEntry1 = (value) => {
-      setTankerReading1(parseFloat(value))
-    }
-    const handleTankerEntry2 = (value) => {
-      setTankerReading2(parseFloat(value))
     }
 
     // create json format for employeeSale database
@@ -143,21 +151,34 @@ export default function DataEntry() {
           dieselSale = dieselSale + eEnding[index] - eBeginning[index]
         }
       })
-      let petrolBookStock = petrolStartActualStock-petrolSale+tankerReading1
-      let dieselBookStock = dieselStartActualStock-dieselSale+tankerReading2
+
+      const deliveries = []
+      tankerIDs.forEach((id, index)=>{
+          deliveries.push({tankerID: id, petrolQuantity: tankerDelivery[index][0]?tankerDelivery[index][0]:0, dieselQuantity: tankerDelivery[index][1]?tankerDelivery[index][1]:0})
+      })
+      let petrolDelivery = 0
+      let dieselDeliver = 0
+      deliveries.forEach((d, index)=>{
+        petrolDelivery += d.petrolQuantity
+        dieselDeliver += d.dieselQuantity
+      })
+      console.log("petrol and diesel", petrolDelivery, dieselDeliver)
+      let petrolBookStock = petrolStartActualStock-petrolSale+petrolDelivery
+      let dieselBookStock = dieselStartActualStock-dieselSale+dieselDeliver
       let petrolEndActualStock = dipReading1
       let dieselEndActualStock = dipReading2+dipReading3
       let petrolVarience = petrolBookStock - petrolEndActualStock
       let dieselVarience = dieselBookStock - dieselEndActualStock
-      console.log("start actual stocks:", petrolStartActualStock, dieselStartActualStock)
+    
+      
+      console.log("delivery:", deliveries)
       const tSale = {
         date,
         petrolStartActualStock,
         dieselStartActualStock,
         petrolSale,
         dieselSale,
-        "petrolTanker":tankerReading1,
-        "dieselTanker":tankerReading2,
+        deliveries,
         petrolBookStock,
         dieselBookStock,
         dipReading1,
@@ -209,21 +230,19 @@ export default function DataEntry() {
 
     
     const postData = async () => {
+      console.log("Endings:", eEnding)
       // user didn't enter actual stock values then check previous date stock
       if (!enteredPetrolStart || !enteredDieselStart){
-        console.log("not actual stocks currently")
         const response = await fetch(`http://localhost:5500/entry/lastDate/${date}`)
         const dateCheck = await response.json();
         
         // previous date didn't exist ask user to enter actual stock values
         if (dateCheck['message'] == 'not exists'){
-          console.log("not exists")
           setAskuserStart(true)
           return
         }
         // previous date exists then write data to database
         else{
-          console.log("date exists")
           let petrolStartActualStock = dateCheck['petrolStartActualStock'];
           let dieselStartActualStock = dateCheck['dieselStartActualStock']
           await writeTotalSales(petrolStartActualStock, dieselStartActualStock);
@@ -232,7 +251,6 @@ export default function DataEntry() {
       }
       // user entered actual stock values
       else{
-        console.log("actual stock entered by user")
         await writeTotalSales(enteredPetrolStart, enteredDieselStart);
         await writeEmployeeSales();
         
@@ -245,6 +263,29 @@ export default function DataEntry() {
         postData()
     }
 
+    
+    useEffect(() => {
+      const fetchData = async () => {
+        const tResponse = await fetch(`http://localhost:5500/getter/tankerIDs`);
+        const tankers = await tResponse.json();
+        let tData = tankers.map(item => (item.number));
+        setTankerIDs(tData);
+        setTankerDelivery(Array(tData.length).fill([0, 0]))
+
+        const eResponse = await fetch(`http://localhost:5500/getter/employeeNames`);
+        const employees = await eResponse.json();
+        let eData = employees.map(item => (item.name));
+        setEID(eData)
+        setEBeginning(Array(eData.length).fill(0))
+        setEEnding(Array(eData.length).fill(0))
+        setESaleType(Array(eData.length).fill(0))
+
+      };
+    
+      fetchData();
+    }, []);
+
+
   return (
     <div className="container mt-4" style={{maxWidth:"550px"}}>
       <h4>Date</h4>
@@ -252,18 +293,38 @@ export default function DataEntry() {
       <br></br>
       
       <h4 className="mt-4">Dispenser Reading</h4>
-      {eBeginning.map((data, index) => (<EmployeeReadingsEntry beginningValue={eBeginning[index]} endingValue={eEnding[index]} saleTypeValue={eSaleType[index]} eIDvalue={eID[index]} key={index} itemNum={index} updateBeginning={(value) => handleBeginningAt(index, value)} updateEnding={(value) => handleEndingAt(index, value)} updateSaleType={(value) => handleESaleTypeAt(index, value)} updateEName={(value) => handleEIDAt(index, value)}/>))}
-      
+      {eBeginning.map((data, index) => (
+        <EmployeeReadingsEntry 
+        beginningValue={eBeginning[index]} 
+        endingValue={eEnding[index]} 
+        saleTypeValue={eSaleType[index]} 
+        eIDvalue={eID[index]} 
+        key={index} 
+        itemNum={index} 
+        updateEmployeeSale={(start, end, saleType)=>handleEmployeeSaleUpdate(index, start, end, saleType)}
+        updateBeginning={(value) => handleBeginningAt(index, value)} 
+        updateEnding={(value) => handleEndingAt(index, value)} 
+        updateSaleType={(value) => handleESaleTypeAt(index, value)} 
+        />))}
+
       <h4 className="mt-5">Dip Reading</h4>
       <DipEntry updateDipReading1={(value) => handleDipEntry1(value)} updateDipReading2={(value) => handleDipEntry2(value)} updateDipReading3={(value) => handleDipEntry3(value)} dipValue1={dipReading1} dipValue2={dipReading2} dipValue3={dipReading3}/>
       
       <h4 className="mt-5">Delivery</h4>
-      <Tanker updateTankerReading1={(value) => handleTankerEntry1(value)} updateTankerReading2={(value) => handleTankerEntry2(value)} tankerValue1={tankerReading1} tankerValue2={tankerReading2}/>
-      
+      {/* <Tanker updateTankerReading1={(value) => handleTankerEntry1(value)} updateTankerReading2={(value) => handleTankerEntry2(value)} tankerValue1={tankerReading1} tankerValue2={tankerReading2}/> */}
+      {tankerIDs.map((tankerID, index) => (
+        <Tanker
+          key={tankerID}
+          tankerID={tankerID}
+          tankerQuantity={tankerDelivery[index]}
+          updateTanker={(petrol, diesel) => handleTankerUpdate(index, petrol, diesel)}
+        />
+      ))}
+
+
       {askUserStart && <div> <h4 className="mt-4">Starting Actual Stock</h4> <div className="input-group mb-3"> <input id="startPetrolStock" className="form-control" type="number" placeholder="Petrol" value={enteredPetrolStart} onChange={(event)=>{setEnteredPetrolStart(event.target.value)}}/> <span className="input-group-text">litre</span>
       <input id="startDieselStock" className="form-control" type="number" placeholder="Diesel" value={enteredDieselStart} onChange={(event)=>{setEnteredDieselStart(event.target.value)}}/> <span className="input-group-text">litre</span></div> </div>
       }
-
       <Button className='mb-5 mt-3' color="success" variant="contained" endIcon={<SendIcon />} onClick={handleEntry} >
         Enter
       </Button>
