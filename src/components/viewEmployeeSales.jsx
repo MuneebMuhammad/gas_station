@@ -1,10 +1,11 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import LineGraph from './lineGraph';
 
 function ViewEmployeeSales() {
     const [chartData, setChartData] = useState([]);
     const [eID, setEID] = useState(0)
-    const [saleType, setSaleType] = useState(0)
+    const [saleType, setSaleType] = useState(0);
+    const [allEmployees, setAllEmployees] = useState([])
 
     const handleView = async(id,ty)=>{
         const response = await fetch(`http://localhost:5500/getter/allEmployeeSales`)
@@ -35,13 +36,23 @@ function ViewEmployeeSales() {
         handleView(eID, event.target.value);
     }
 
+    useEffect(() => {
+        const fetchData = async () => {
+          const eResponse = await fetch(`http://localhost:5500/getter/employeeNames`);
+          const employees = await eResponse.json();
+          let eData = employees.map(item => (item.name));
+          setAllEmployees(eData)
+  
+        };
+      
+        fetchData();
+      }, []);
+
   return (
     <div className='container mt-5'>
         <select className="form-select mb-1" aria-label="Default select example" onChange={handleEmployeeChange}>
         <option defaultValue={""}>Choose Employee</option>
-        <option value="0">Ali</option>
-        <option value="1">Asad</option>
-        <option value="2">Asim</option>
+        {allEmployees.map((item, index)=> (<option key={index} value={item}>{item}</option>))}
         </select>
         <div className="form-check form-check-inline">
         <input className="form-check-input" type="radio" name="inlineRadioOptions" value="0" defaultChecked onChange={handleTypeChange}/>
