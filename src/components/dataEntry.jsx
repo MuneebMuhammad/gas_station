@@ -4,6 +4,7 @@ import DipEntry from './dipEntry'
 import Tanker from './tanker'
 import Button from '@mui/material/Button'
 import SendIcon from '@mui/icons-material/Send';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import { data } from 'jquery'
 
@@ -263,6 +264,10 @@ export default function DataEntry() {
         postData()
     }
 
+    const handleLogout = () =>{
+      window.location.replace('http://localhost:3000')
+    }
+
     
     useEffect(() => {
       const fetchData = async () => {
@@ -287,8 +292,12 @@ export default function DataEntry() {
 
 
   return (
+    <>
+    <Button variant='contained' endIcon={<LogoutIcon />} style={{float: "right", marginTop: "20px", marginRight: "20px"}} onClick={handleLogout}>Log out</Button>
+    <br></br>
     <div className="container mt-4" style={{maxWidth:"550px"}}>
-      <h4>Date</h4>
+      
+      <h4 >Date</h4>
       <input id="startDate" className="form-control" type="date" onChange={updateDate}/>
       <br></br>
       
@@ -329,5 +338,6 @@ export default function DataEntry() {
         Enter
       </Button>
     </div>
+    </>
   )
 }

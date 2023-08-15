@@ -43,22 +43,17 @@ const handleTypeChange = (event)=>{
     handleView(tID, event.target.value);
 }
 
+useEffect(() => {
+  const fetchData = async () => {
+    const eResponse = await fetch(`http://localhost:5500/getter/tankerIDs`);
+    const employees = await eResponse.json();
+    let eData = employees.map(item => (item.number));
+    setAllTankers(eData)
 
+  };
 
-
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const eResponse = await fetch(`http://localhost:5500/getter/tankerIDs`);
-      const employees = await eResponse.json();
-      let eData = employees.map(item => (item.number));
-      setAllTankers(eData)
-
-    };
-  
-    fetchData();
-  }, []);
+  fetchData();
+}, []);
 
   return (
     <div>
