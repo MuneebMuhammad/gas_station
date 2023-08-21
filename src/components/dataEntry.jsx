@@ -9,7 +9,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { data } from 'jquery'
 
 
-export default function DataEntry() {
+export default function DataEntry(props) {
     const [date, setDate] = useState("")
     const [dipReading1, setDipReading1] = useState(0)
     const [dipReading2, setDipReading2] = useState(0)
@@ -42,8 +42,13 @@ export default function DataEntry() {
       setEEnding(Array(eID.length).fill(0))
       setESaleType(Array(eID.length).fill(0))
 
+      const token = localStorage.getItem('token')
       // load data if this date exists in the table
-      const response = await fetch(`http://localhost:5500/getter/totalSaleAt/${event.target.value}`)
+      const response = await fetch(`http://localhost:5500/getter/totalSaleAt/${event.target.value}`,{
+        method: 'GET',
+        headers: {'Content-Type': 'application/json',
+        'Authorization': token}
+      })
       const viewData = await response.json();
       console.log("view Data:", viewData)
       if (viewData.message == "exists"){
@@ -55,13 +60,20 @@ export default function DataEntry() {
         setEnteredDieselStart(viewData.response.dieselStartActualStock)
         setTankerDelivery(viewData.response.deliveries.map((item)=> ([item.petrolQuantity, item.dieselQuantity])))
 
-        const response = await fetch(`http://localhost:5500/getter/employeeSaleAt/${event.target.value}`)
+        const response = await fetch(`http://localhost:5500/getter/employeeSaleAt/${event.target.value}`,{
+          method: 'GET',
+          headers: {'Content-Type': 'application/json',
+          'Authorization': token}
+        })
         const employeeViewData = await response.json();
-        console.log(employeeViewData)
-        setEBeginning(employeeViewData.response.eSale.map((item)=> (item.beginningEntry)))
-        setEEnding(employeeViewData.response.eSale.map((item)=> (item.endingEntry)))
-        setESaleType(employeeViewData.response.eSale.map((item)=> (item.saleType)))
-        setEID(employeeViewData.response.eSale.map((item)=> (item.employeeId)))
+        if (employeeViewData.message == "exists"){
+          console.log(employeeViewData)
+          setEBeginning(employeeViewData.response.eSale.map((item)=> (item.beginningEntry)))
+          setEEnding(employeeViewData.response.eSale.map((item)=> (item.endingEntry)))
+          setESaleType(employeeViewData.response.eSale.map((item)=> (item.saleType)))
+          setEID(employeeViewData.response.eSale.map((item)=> (item.employeeId)))
+        }
+        
         
       }
     }    
@@ -195,10 +207,12 @@ export default function DataEntry() {
 
     // write data to totalSale database
     const writeTotalSales = async (petrolStartActualStock, dieselStartActualStock) => {
+      const token = localStorage.getItem('token')
       const tSaleJSON = createTSaleJSON(petrolStartActualStock, dieselStartActualStock);
       const tresponse = await fetch('http://localhost:5500/entry/total', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json',
+        'Authorization': token},
         body: JSON.stringify(tSaleJSON)
       })
       .then((tresponse) => tresponse.json())
@@ -213,10 +227,12 @@ export default function DataEntry() {
 
     // write data to employeeSale database
     const writeEmployeeSales = async () =>{
+      const token = localStorage.getItem('token')
       const eSaleJSON = createESaleJSON();
       const eresponse = await fetch('http://localhost:5500/entry/employee', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json',
+        'Authorization': token},
         body: JSON.stringify(eSaleJSON)
       })
       .then((eresponse) => eresponse.json())
@@ -265,6 +281,7 @@ export default function DataEntry() {
     }
 
     const handleLogout = () =>{
+      localStorage.removeItem('token')
       window.location.replace('http://localhost:3000')
     }
 
@@ -286,21 +303,22 @@ export default function DataEntry() {
         setESaleType(Array(eData.length).fill(0))
 
       };
-    
+      
       fetchData();
     }, []);
 
 
   return (
     <>
+    {props.token}
     <Button variant='contained' endIcon={<LogoutIcon />} style={{float: "right", marginTop: "20px", marginRight: "20px"}} onClick={handleLogout}>Log out</Button>
     <br></br>
     <div className="container mt-4" style={{maxWidth:"550px"}}>
-      
+    
       <h4 >Date</h4>
       <input id="startDate" className="form-control" type="date" onChange={updateDate}/>
       <br></br>
-      
+
       <h4 className="mt-4">Dispenser Reading</h4>
       {eBeginning.map((data, index) => (
         <EmployeeReadingsEntry 

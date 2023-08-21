@@ -1,6 +1,12 @@
 const mongoose = require('mongoose')
 
 
+const userSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+  role: String
+})
+
 const eSaleSchema = new mongoose.Schema({
     employeeId: String,
     beginningEntry: Number,
@@ -58,10 +64,11 @@ const testSchema = new mongoose.Schema({
 })
 
 
+const userModel= mongoose.model('users', userSchema)
 const eSaleModel = mongoose.model('employeesales', employeeSaleSchema);
 const tSalesModel = mongoose.model('totalsales', totalSalesSchma);
 const tankerModel = mongoose.model('tankers', tankerSchema)
 const employeeModel = mongoose.model('employees', employeeSchema)
 const testModel = mongoose.model('tests', testSchema)
 
-module.exports = {eSaleModel, tSalesModel, tankerModel, employeeModel,testModel}
+module.exports = {userModel,eSaleModel, tSalesModel, tankerModel, employeeModel,testModel}

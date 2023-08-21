@@ -8,20 +8,29 @@ function ViewEmployeeSales() {
     const [allEmployees, setAllEmployees] = useState([])
 
     const handleView = async(id,ty)=>{
-        const response = await fetch(`http://localhost:5500/getter/allEmployeeSales`)
+        const token = localStorage.getItem('token')
+        const response = await fetch(`http://localhost:5500/getter/allEmployeeSales`,{
+            method: 'GET',
+            headers: {'Content-Type': 'application/json',
+            'Authorization': token}
+          })
+        
         const totalSales = await response.json();
-        let data = [];
+        if (totalSales.message == "ok"){
+            let data = [];
 
-        totalSales.forEach((item) => {
-            item.eSale.forEach((eSale) => {
-            if (eSale.employeeId == id && eSale.saleType == ty) {
-                data.push({ date: item.date, value: eSale.sales });
-            }
+            totalSales.response.forEach((item) => {
+                item.eSale.forEach((eSale) => {
+                if (eSale.employeeId == id && eSale.saleType == ty) {
+                    data.push({ date: item.date, value: eSale.sales });
+                }
+                });
             });
-        });
-
-        console.log("data", data);
-        setChartData(data);
+    
+            console.log("data", data);
+            setChartData(data);
+        }
+        
 
     }
 
@@ -38,10 +47,18 @@ function ViewEmployeeSales() {
 
     useEffect(() => {
         const fetchData = async () => {
-          const eResponse = await fetch(`http://localhost:5500/getter/employeeNames`);
+            const token = localStorage.getItem('token')
+          const eResponse = await fetch(`http://localhost:5500/getter/employeeNames`,{
+            method: 'GET',
+            headers: {'Content-Type': 'application/json',
+            'Authorization': token}
+          });
           const employees = await eResponse.json();
-          let eData = employees.map(item => (item.name));
-          setAllEmployees(eData)
+          if (employees.message == "ok"){
+            let eData = employees.response.map(item => (item.name));
+            setAllEmployees(eData)
+          }
+          
   
         };
       

@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors');
+
 var dataEntryController = require('./Controllers/dataEntry.js')
 var getterController = require('./Controllers/getters.js')
 const app = express();

@@ -8,19 +8,38 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 const defaultTheme = createTheme();
 
-export default function Login() {
-  const handleSubmit = (event) => {
+export default function Login(props) {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     let email =  data.get('email');
     let password = data.get('password')
-
-    if (email == 'user' && password=='user') window.location.replace('http://localhost:3000/user');
-    else if (email === 'admin' && password === 'admin') window.location.replace('http://localhost:3000/admin')
+    const response = await fetch('http://localhost:5500/getter/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body:  JSON.stringify({email, password})
+    })
+    if (response.ok) {
+      const data = await response.json();
+      props.sToken(data.token)
+      localStorage.setItem('token', data.token)
+      console.log("response", data)
+      if (data.role == 'manager') navigate('/user');
+      else if (data.role === 'admin') navigate('/admin')
+    }
+    else{
+      console.log("error signing in")
+    }
   };
 
   return (

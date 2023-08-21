@@ -1,34 +1,58 @@
 const express = require('express')
 const router = express.Router();
 const mongoose = require('../database')
+const jwt = require('jsonwebtoken');
 
 const {eSaleModel, testModel, tSalesModel} = require('../schemas')
 
-router.get('/greetings', (req, res)=>{
-    res.json({message: "reply from greetings api"})
+
+// Middleware to verify JWT
+function verifyToken(req, res, next) {
+  const secretKey = 'R%L9kwW*w!3wLBbs';
+
+  const token = req.headers['authorization'];
+  console.log("token:", token)
+  if (!token) {
+    return res.status(401).json({ message: 'Token not provided' });
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    console.log("role decoded", decoded)
+    req.user = decoded.id;
+    req.role = decoded.role
+    next();
+  });
+}
+
+// Middleware to verify role
+function verifyRole(role) {
+  return (req, res, next) => {
+    if (req.role !== role) return res.status(403).send({ message: 'Access forbidden.' });
+    next();
+  };
+}
+
+router.post('/employee', verifyToken, verifyRole('manager'), async(req, res)=>{
+      console.log("employee sale:", req.body)
+      eSaleModel.findOneAndUpdate(
+        {date:req.body.date},
+        req.body,
+        {new: true, upsert: true}
+      )
+      .then(() => {
+          res.status(200).json({ message: 'Sale successfully added' });
+        })
+        .catch(err => {
+          console.log(err)
+          res.status(400).json({ error: 'There was an error saving the employee sale', details: err });
+        });    
 })
 
-router.post('/employee', async(req, res)=>{
+router.post('/total', verifyToken, verifyRole('manager'), async(req, res) => {
     
-    console.log("employee sale:", req.body)
-    eSaleModel.findOneAndUpdate(
-      {date:req.body.date},
-      req.body,
-      {new: true, upsert: true}
-    )
-    .then(() => {
-        res.status(200).json({ message: 'Sale successfully added' });
-      })
-      .catch(err => {
-        console.log(err)
-        res.status(400).json({ error: 'There was an error saving the employee sale', details: err });
-      });
-})
-
-router.post('/total', async(req, res) => {
-    // const newTSale = new tSalesModel(req.body);
-
-    // newTSale.save()
     tSalesModel.findOneAndUpdate(
       {date: req.body.date},
       req.body,
@@ -43,7 +67,7 @@ router.post('/total', async(req, res) => {
       });
 })
 
-router.get('/lastDate/:date', async(req, res) => {
+router.get('/lastDate/:date', verifyToken, verifyRole('manager'), async(req, res) => {
     const dateObject = new Date(req.params.date)
     dateObject.setDate(dateObject.getDate() -1);
     tSalesModel.findOne({date: dateObject.toISOString().split('T')[0]})

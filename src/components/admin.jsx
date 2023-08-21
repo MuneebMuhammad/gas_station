@@ -18,6 +18,7 @@ function Admin() {
       };
 
     const handleLogout = () =>{
+      localStorage.removeItem('token')
       window.location.replace('http://localhost:3000')
     }
 

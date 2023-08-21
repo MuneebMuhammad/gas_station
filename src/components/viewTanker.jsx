@@ -13,21 +13,28 @@ function ViewTanker() {
 
 
   const handleView = async(id,ty)=>{
-    const response = await fetch(`http://localhost:5500/getter/allTotalSales`)
+    const token = localStorage.getItem('token')
+    const response = await fetch(`http://localhost:5500/getter/allTotalSales`,{
+      method: 'GET',
+      headers: {'Content-Type': 'application/json',
+            'Authorization': token}
+    })
     const totalSales = await response.json();
-    let data = [];
-
-    totalSales.forEach((item) => {
-        item.deliveries.forEach((delivery) => {
-        if (delivery.tankerID == id) {
-          let quantity = ty == 0? delivery.petrolQuantity : delivery.dieselQuantity
-          data.push({ date: item.date, value: quantity });
-        }
-        });
-    });
-
-    console.log("data", data);
-    setChartData(data);
+    if (totalSales.message == "ok"){
+      let data = [];
+      totalSales.response.forEach((item) => {
+          item.deliveries.forEach((delivery) => {
+          if (delivery.tankerID == id) {
+            let quantity = ty == 0? delivery.petrolQuantity : delivery.dieselQuantity
+            data.push({ date: item.date, value: quantity });
+          }
+          });
+      });
+  
+      console.log("data", data);
+      setChartData(data);
+    }
+    
 
 }
 
@@ -45,10 +52,17 @@ const handleTypeChange = (event)=>{
 
 useEffect(() => {
   const fetchData = async () => {
-    const eResponse = await fetch(`http://localhost:5500/getter/tankerIDs`);
+    const token = localStorage.getItem('token')
+    const eResponse = await fetch(`http://localhost:5500/getter/tankerIDs`,{
+      method: 'GET',
+      headers: {'Content-Type': 'application/json',
+            'Authorization': token}
+    });
     const employees = await eResponse.json();
-    let eData = employees.map(item => (item.number));
-    setAllTankers(eData)
+    if (employees.message == "ok"){
+      let eData = employees.response.map(item => (item.number));
+      setAllTankers(eData)
+    }
 
   };
 

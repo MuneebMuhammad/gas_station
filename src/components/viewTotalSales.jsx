@@ -5,48 +5,68 @@ function ViewTotalSales() {
 const [chartData, setChartData] = useState([]);
 
 const handleOptionChange = async(event)=>{
-    const response = await fetch(`http://localhost:5500/getter/allTotalSales`)
-    const totalSales = await response.json();
-    let data;
-    switch (parseInt(event.target.value)){
-        case 0:                
-            data = totalSales.map(item => ({
-                date: item['date'],
-                value: parseInt(item['petrolSale'], 10) 
-            }))
-            break;
-        case 1:
-            data = totalSales.map(item => ({
-                date: item['date'],
-                value: parseInt(item['dieselSale'], 10) 
-            }))
-            break;
-        case 2:
-            data = totalSales.map(item => ({
-                date: item['date'],
-                value: parseInt(item['petrolVarience'], 10) 
-            }))
-            break;
-        case 3:
-            data = totalSales.map(item => ({
-                date: item['date'],
-                value: parseInt(item['dieselVarience'], 10) 
-            }))
-            break;
+    const token = localStorage.getItem('token')
+    const response = await fetch(`http://localhost:5500/getter/allTotalSales`,{
+        method: 'GET',
+        headers: {'Content-Type': 'application/json',
+        'Authorization': token}
+      })
+    const allResponse = await response.json();
+    if (allResponse.message == "ok"){
+        let data;
+        const totalSales = allResponse.response
+        switch (parseInt(event.target.value)){
+            case 0:                
+                data = totalSales.map(item => ({
+                    date: item['date'],
+                    value: parseInt(item['petrolSale'], 10) 
+                }))
+                break;
+            case 1:
+                data = totalSales.map(item => ({
+                    date: item['date'],
+                    value: parseInt(item['dieselSale'], 10) 
+                }))
+                break;
+            case 2:
+                data = totalSales.map(item => ({
+                    date: item['date'],
+                    value: parseInt(item['petrolVarience'], 10) 
+                }))
+                break;
+            case 3:
+                data = totalSales.map(item => ({
+                    date: item['date'],
+                    value: parseInt(item['dieselVarience'], 10) 
+                }))
+                break;
+        }
+    
+        setChartData(data)
     }
 
-    setChartData(data)
+    
 }
 
 useEffect(() => {
         const fetchData = async () => {
-          const response = await fetch(`http://localhost:5500/getter/allTotalSales`);
-          const totalSales = await response.json();
-          let data = totalSales.map(item => ({
-            date: item['date'],
-            value: parseInt(item['petrolSale'], 10)
-          }));
-          setChartData(data);
+            const token = localStorage.getItem('token')
+          const response = await fetch(`http://localhost:5500/getter/allTotalSales`,{
+            method: 'GET',
+            headers: {'Content-Type': 'application/json',
+            'Authorization': token}
+          });
+          const allResponse = await response.json();
+          console.log("data:", allResponse)
+          if (allResponse.message == "ok"){
+            let totalSales = allResponse.response
+            let data = totalSales.map(item => ({
+                date: item['date'],
+                value: parseInt(item['petrolSale'], 10)
+              }));
+              setChartData(data);
+          }
+          
         };
       
         fetchData();
