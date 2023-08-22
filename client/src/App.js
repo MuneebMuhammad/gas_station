@@ -21,7 +21,7 @@ function App() {
       <Routes>
         
         <Route path="/" element={<Login sToken={handleSetToken}/>} />
-        <Route path="/user" element={<DataEntry token={token}/>} />
+        <Route path="/user" element={<DataEntry/>} />
         <Route path="/admin" element={<Admin token={token}/>} />
       </Routes>
     </BrowserRouter>

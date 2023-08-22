@@ -288,15 +288,26 @@ export default function DataEntry(props) {
     
     useEffect(() => {
       const fetchData = async () => {
-        const tResponse = await fetch(`http://localhost:5500/getter/tankerIDs`);
+        const token = localStorage.getItem('token')
+        const tResponse = await fetch(`http://localhost:5500/getter/tankerIDs`,{
+          method: 'GET',
+          headers: {'Content-Type': 'application/json',
+          'Authorization': token}
+        });
         const tankers = await tResponse.json();
-        let tData = tankers.map(item => (item.number));
+        if (tankers.message != "ok") return
+        console.log("tankers data:", tankers)
+        let tData = tankers.response.map(item => (item.number));
         setTankerIDs(tData);
         setTankerDelivery(Array(tData.length).fill([0, 0]))
 
-        const eResponse = await fetch(`http://localhost:5500/getter/employeeNames`);
+        const eResponse = await fetch(`http://localhost:5500/getter/employeeNames`,{
+          method: 'GET',
+          headers: {'Content-Type': 'application/json',
+          'Authorization': token}
+        });
         const employees = await eResponse.json();
-        let eData = employees.map(item => (item.name));
+        let eData = employees.response.map(item => (item.name));
         setEID(eData)
         setEBeginning(Array(eData.length).fill(0))
         setEEnding(Array(eData.length).fill(0))
@@ -310,7 +321,6 @@ export default function DataEntry(props) {
 
   return (
     <>
-    {props.token}
     <Button variant='contained' endIcon={<LogoutIcon />} style={{float: "right", marginTop: "20px", marginRight: "20px"}} onClick={handleLogout}>Log out</Button>
     <br></br>
     <div className="container mt-4" style={{maxWidth:"550px"}}>
